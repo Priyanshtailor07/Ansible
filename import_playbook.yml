@@ -1,0 +1,9 @@
+---
+  - name: Import playbook file of multiple play file
+    hosts: dev
+    tasks:
+         - name: grouping tasks
+           import_tasks: ./group_task.yml
+   
+  - name: running multiplay book file
+    import_playbook: ./multiple_playbooks.yml 

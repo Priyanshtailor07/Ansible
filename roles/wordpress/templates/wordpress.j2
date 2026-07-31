@@ -1,0 +1,12 @@
+<VirtualHost {{ ansible_facts.default_ipv4.address }}:80>
+ServerAdmin  node1
+DocumentRoot {{ wordpress_root }}
+<Directory "{{ wordpress_root }}">
+Options Indexes FollowSymLinks
+AllowOverride all
+Require all granted
+</Directory>
+
+ErrorLog {{log_path}}/wordpress_error.log
+CustomLog {{log_path}}/wordpress_access.log common
+</VirtualHost>

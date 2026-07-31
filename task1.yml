@@ -1,0 +1,11 @@
+---
+    - name: Service status check with register variable
+      hosts: dev
+      tasks:
+            - name: creating a register variable for status
+              command: systemctl status sshd
+              register: service_status
+
+            - name: print the sshd service status
+              debug: 
+                   msg: ssh service {{service_status.stdout}}

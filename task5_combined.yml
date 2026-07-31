@@ -1,0 +1,34 @@
+--- 
+    - name: Combined – Block/Rescue + Loop + Handler
+      hosts: dev
+      gather_facts: yes
+      vars:
+          pkg: [httpd,vim,git]
+      tasks:
+            - name: Using block and loop to install http, vim and git 
+              block:
+                    - name: Installing packeges
+                      yum:
+                          name: "{{item}}"
+                          state: latest
+                      loop: "{{pkg}}"
+                      when: ansible_os_family=="RedHat"  
+                      register: pkg_status
+                      notify: restart httpd
+              rescue:
+                  - name: Rescue block is running
+                    debug: 
+                       msg: Installed packeges status are {{item.item}}
+                    loop: "{{pkg_status.results}}"
+              always:
+                   - name: This is always block
+                     debug: 
+                        msg: Total number of packages are {{ pkg_status| length}}
+      handlers:
+              - name: restart httpd
+                service:
+                    name: httpd
+                    state: restarted
+
+                
+                          

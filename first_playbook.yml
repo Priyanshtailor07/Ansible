@@ -1,0 +1,15 @@
+---
+  - name: first palybook
+    hosts: dev
+    tasks:
+          - name: creating a group
+            group: 
+                    name: dev
+                    state: present
+
+          - name: creating a user
+            user:
+                   name: ram
+                   state: present
+                   groups: dev
+

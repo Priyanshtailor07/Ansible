@@ -1,0 +1,8 @@
+  - name: group1
+    group:
+        name: g1
+        state: present
+  - name: g2
+    group:
+         name: g2
+         state: present

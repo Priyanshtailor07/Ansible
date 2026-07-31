@@ -1,0 +1,7 @@
+---
+# vars file for database
+# name: database user creation
+   db_name: wordpress_db
+   db_user: wordpress_user
+   db_password: password
+   db_hostname: "{{ hostvars['node1']['ansible_default_ipv4']['address'] }}"

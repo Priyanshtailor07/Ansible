@@ -1,0 +1,3 @@
+pkg: nfs-utils
+service: nfs-server.service
+port: 2049/tcp

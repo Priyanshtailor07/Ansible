@@ -1,0 +1,41 @@
+---
+    # tasks file for apache
+
+  - name: install "{{rhel_pkg}}"
+    yum:
+      name:  "{{rhel_pkg}}"
+      state: present
+    when: ansible_os_family== "RedHat"
+    register: redhat_install
+
+
+  - name: install "{{ubuntu_pkg}}"
+    apt:
+      name:  "{{ubuntu_pkg}}"
+      state: present
+    when: ansible_os_family== "Debian"
+    register: debian_install
+
+  - name: start and enable service
+    service:
+          name:"{{ rhel_pkg if ansible_os_family == 'RedHat' and  else ubuntu_pkg }}"
+          state: started
+          enabled: yes
+  - name: starting firewalld
+    firewalld:
+            port: 80
+            state: enabled
+            permanent: true
+            immediate: true
+    when: ansible_os_family == 'RedHat'
+  - name: copy conf file
+    template:
+          src: abc.j2
+          dest: {{custom_conf_rhel}}/abc.conf
+    ansible_os_family == 'RedHat'
+
+  - name: copy conf file
+    template:
+          src: xyz.j2
+          dest: {{custom_conf_ubuntu}}/xyz.conf
+    ansible_os_family == 'Debian'

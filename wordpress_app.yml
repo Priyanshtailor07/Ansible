@@ -1,0 +1,13 @@
+---
+- hosts: rhel
+  gather_facts: yes
+  
+- name: Configure Database Server
+  hosts: node2
+  roles:
+    - database
+
+- name: Configure WordPress Server
+  hosts: node1
+  roles:
+    - wordpress

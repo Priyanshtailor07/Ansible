@@ -1,0 +1,3 @@
+pkg: httpd
+service: httpd.service
+port: 80/tcp

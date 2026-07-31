@@ -1,0 +1,10 @@
+---
+  users:
+    - name: jack
+      job: manager
+
+    - name: neel
+      job: developer
+
+    - name: bob
+      job: engineer

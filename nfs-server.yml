@@ -1,0 +1,36 @@
+---
+  - name: Configure NFS server
+    hosts: node1
+    vars_files:
+              ./nfs_vars.yml
+    tasks:
+           - name: installing {{pkg}}
+             yum:
+                 name: "{{pkg}}"
+                 state: present
+           - name: starting {{service}}
+             service: 
+                    name: "{{ service }}"
+                    state: started
+                    enabled: yes
+           - name: firewalld management
+             firewalld:
+                       port: "{{port}}"
+                       state: enabled
+                       permanent: true
+                       immediate: true
+
+           - name: creating a dir for sharing
+             file:
+                  path: /nfs_share
+                  state: directory
+                  mode: "777"
+           - name: creating linein file
+             lineinfile: 
+                   path: /etc/exports.d/abc.exports
+                   line: /nfs_share   172.31.10.69(rw,sync)
+                   create: yes
+           - name: exportfs command
+             command: 
+                      exportfs -rv
+

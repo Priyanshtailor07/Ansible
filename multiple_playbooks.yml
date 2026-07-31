@@ -1,0 +1,20 @@
+---
+  - name: first play
+    hosts: dev
+    tasks:
+           - name: archiving file
+             archive:
+                     path: /etc
+                     dest: /tmp/data/etc.tar.gz
+                     format: gz
+
+  - name: second play
+    hosts: node1
+    tasks: 
+          - name: installing git and vfstpd
+            yum: 
+                 name: 
+                      - vsftpd
+                      - git
+                 state: present
+

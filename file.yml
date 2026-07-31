@@ -1,0 +1,19 @@
+--- 
+    - name: Tasks for dev group 
+      hosts: dev
+      tasks: 
+            - name: creating a dir
+              file: 
+                     path: /tmp/data
+                     state: directory
+            - name: creating file with permissions 660
+              file:
+                     path: /tmp/data/techno.txt
+                     state: touch
+                     mode: '660'                  
+                    
+            - name: creating hardlink to grrass.txt
+              file: 
+                     src: '/tmp/data/techno.txt'
+                     dest: '~/grras.txt'
+                     state: hard

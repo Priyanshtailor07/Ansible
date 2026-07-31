@@ -1,0 +1,13 @@
+--- 
+    - name: Create Multiple Users with Password using loop
+      hosts: dev
+      tasks: 
+             - name: creating user
+               user:
+                    name: "{{item}}"
+                    password: "{{ 'Redhat@123' | password_hash('sha512') }}"
+               loop: 
+                     - user1
+                     - user2
+                     - user3
+                     - user4

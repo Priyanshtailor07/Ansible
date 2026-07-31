@@ -1,0 +1,7 @@
+--- 
+  - name: print info
+    hosts: node1
+    tasks:
+          - name: print ip and hostname
+            debug:
+                  msg: the hostname is {{ansible_hostname}} and ipv4 for is {{ansible_default_ipv4.address}}

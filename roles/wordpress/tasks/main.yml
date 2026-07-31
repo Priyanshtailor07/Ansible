@@ -1,0 +1,70 @@
+---
+# tasks file for wordpress
+
+- name: Install packages
+  yum:
+    name: "{{ item }}"
+    state: latest
+  loop: "{{ pkg }}"
+
+- name: Start httpd
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Start php-fpm
+  service:
+    name: php-fpm
+    state: started
+    enabled: yes
+
+- block:
+    - name: Create working directory
+      file:
+        path: /home/admin/wordpress
+        state: directory
+
+    - name: Download WordPress
+      get_url:
+        url: "{{ wordpress_url }}"
+        dest: /home/admin/latest.tar.gz
+
+    - name: Extract WordPress
+      unarchive:
+        src: /home/admin/latest.tar.gz
+        dest: /home/admin/
+        remote_src: yes
+
+    - name: Copy wp-config.php
+      template:
+        src: wp-config.j2
+        dest: /home/admin/wordpress/wp-config.php
+
+- name: Copy WordPress to Apache document root
+  copy:
+    src: /home/admin/wordpress/
+    dest: /var/www/html/wordpress/
+    remote_src: yes
+    owner: apache
+    group: apache
+    mode: "0755"
+
+- name: Configure SELinux context
+  sefcontext:
+    target: "/var/www/html/wordpress(/.*)?"
+    setype: httpd_sys_rw_content_t
+    state: present
+
+- name: Apply SELinux labels
+  command: restorecon -Rv /var/www/html/wordpress
+
+- name: Create Apache VirtualHost
+  template:
+    src: wordpress.j2
+    dest: /etc/httpd/conf.d/wordpress.conf
+
+- name: Restart httpd
+  service:
+    name: httpd
+    state: restarted

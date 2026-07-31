@@ -1,0 +1,15 @@
+--- 
+    - name: Gathering facts from hosts node :- hostname, OS distribution, total memory, and default IPv4 address
+      hosts: dev
+      tasks:
+           - name: printing hostname
+             debug:
+                msg: 
+                      - hostname=> {{ansible_hostname }}
+                      - Distribution => {{ ansible_distribution }}
+                      - IpV4 => {{ ansible_default_ipv4.address }}
+           - name: low memory
+             debug:
+                msg: Low Memory
+             when: ansible_memtotal_mb <= 2048
+

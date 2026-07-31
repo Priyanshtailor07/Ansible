@@ -1,0 +1,11 @@
+--- 
+  - name: loop file 
+    hosts: all
+    tasks:
+          - name: loop on allhosts
+            debug:
+              msg: "{{item}}"
+            loop: 
+                  - node1
+                  - node2
+                  - node3

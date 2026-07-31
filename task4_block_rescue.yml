@@ -1,0 +1,30 @@
+--- 
+    - name: Block / Rescue / Always – Package Install with Error Handling
+      hosts: dev
+      tasks:
+           - name: Installing httpd and starting the service
+             block:
+                  - name: intalling httpd
+                    yum:
+                        name: httpd
+                        state: latest
+                   
+                  - name: starting the service
+                    service:
+                          name: httpd
+                          state: start
+                    register: httpd_status
+             when: ansible_os_family=="RedHat"
+             rescue:
+                - name: Error handling
+                  debug: 
+                    msg: installing and starting cause error the error {{httpd_status}}
+             always: 
+                - name: Always block
+                  debug: 
+                      msg: 
+                          - task execution completed
+                          - service status => {{httpd_status}}
+                      
+                        
+

@@ -1,0 +1,17 @@
+---
+    - name: Handler – Restart Service on Config Change
+      hosts: dev
+      tasks:
+            - name: Copying config file 
+              template:
+                      src: httpd.j2
+                      dest: /etc/httpd/conf.d/httpd.conf 
+              notify: restart httpd
+              when: ansible_os_family=="RedHat"
+      handlers: 
+             - name: restart httpd
+               service:
+                      name: httpd
+                      state: restarted
+                      enabled: yes
+               when: ansible_os_family=="RedHat"         

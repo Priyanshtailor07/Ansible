@@ -1,0 +1,20 @@
+---
+    - name: creating multi user file
+      hosts: rhel
+      vars_files:
+             - ./user_list.yaml
+             - ./secrets.yaml
+      tasks:
+              - name: creating developer user
+                user:
+                    name: "{{item.name}}"
+                    password: "{{ eng | password_hash('sha256') }}"
+                    
+                loop: "{{users}}"
+                when: item.job == "developer" and ansible_facts.hostname=="node1"
+              - name: creating manager on node2
+                user:
+                      name: "{{item.name}}"
+                      password: "{{ mgr | password_hash('sha256') }}"
+                loop: "{{users}}"
+                when: item.job== "manager" and ansible_facts.hostname=="node2"

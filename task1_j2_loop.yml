@@ -1,0 +1,14 @@
+---
+    - name: Jinja2 Template with loop – Config File Generation
+      hosts: rhel
+      gather_facts: yes
+      tasks:
+            - name: Copy the template file
+              template:
+                    src: ./hosts-style.j2
+                    dest: /etc/hosts-style.conf
+              register: files_created
+             
+            - name: printing the result 
+              debug:
+                  msg: "The reuslt {{files_created}}"

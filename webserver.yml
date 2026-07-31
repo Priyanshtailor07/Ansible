@@ -1,0 +1,44 @@
+---
+  - name: configuring web server
+    hosts: dev
+    vars_files:
+              - web_vars.yml
+
+    tasks:
+          
+          - name: install {{pkg}}
+            yum:
+                  name: "{{pkg}}"
+                  state: present
+          - name: manage {{service}}
+            service:
+                    name: "{{ service }}"
+                    state: started
+                    enabled: yes
+
+          - name: open {{port}}
+            firewalld:
+                      port: "{{port}}"
+                      state: enabled
+                      permanent: true
+                      immediate: true
+          - name: copy conf file
+            copy:
+                  src: ./myweb.conf
+                  dest: /etc/httpd/conf.d/
+
+          - name: checking configuration file syntax
+            command: httpd -t
+            register: httpd_t
+
+          - name: display httpd context
+            debug: 
+                  msg: "{{httpd_t}}"
+          - name: copy index file
+            copy: 
+                  src: ./index.html
+                  dest: /var/www/html
+          - name: restart {{service}}
+            service: 
+                      name: "{{service}}"
+                      state: restarted

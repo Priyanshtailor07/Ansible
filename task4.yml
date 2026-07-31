@@ -1,0 +1,19 @@
+---
+  - name: Loop + Package Installation with Result Check
+    hosts: dev
+    tasks:
+          - name: Installing packeges
+            yum:
+                name: "{{item}}"
+                state: present
+            loop: 
+                - httpd
+                - vim
+                - git
+            register: installed_packeges
+
+          - name: Printing newly installed  packeges
+            debug: 
+                    msg:"{{item.item}}"
+            loop: "{{installed_packeges.results}}"
+            when: item.changed

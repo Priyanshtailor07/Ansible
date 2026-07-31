@@ -1,0 +1,15 @@
+---
+# vars file for wordpress
+# Packages
+  pkg: [httpd,php-mysqlnd,php-fpm,php-json] 
+  wordpress_url: https://wordpress.org/latest.tar.gz
+# Configuration variables
+  wordpress_root: /var/www/html/wordpress
+  log_path: /var/log/httpd
+# Database Information
+  db_name: wordpress_db
+  db_user: wordpress_user
+  db_password: password
+  db_hostname: "{{ hostvars['node2']['ansible_default_ipv4']['address'] }}"
+
+  

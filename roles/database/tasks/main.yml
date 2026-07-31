@@ -1,0 +1,31 @@
+---
+# tasks file for database
+   - name: installing mariadb at node2 
+     yum:
+        name: 
+              - mariadb
+              - mariadb-server
+              - python3-PyMySQL
+        state: present
+   - name: starting mariadb service
+     service: 
+          name: mariadb
+          state: started
+   - block:
+          - name: creating database
+            mysql_db:
+                  name: "{{db_name}}"
+                  state: present
+                  login_unix_socket: /var/lib/mysql/mysql.sock
+          - name: creating db user
+            mysql_user: 
+                    name: "{{ db_user }}"
+                    password: "{{ db_password }}"
+                    priv: "{{ db_name }}.*:ALL"
+                    host: "{{ db_hostname }}"
+                    state: present
+                    login_unix_socket: /var/lib/mysql/mysql.sock
+   - name: restarting the service
+     service: 
+          name: mariadb
+          state: restarted

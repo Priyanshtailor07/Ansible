@@ -1,0 +1,42 @@
+---
+  - name: Conditional (when) – OS-Based Task Execution
+    hosts: dev
+    tasks:
+          - name: Printing OS family
+            debug:
+              msg: "{{ansible_os_family}}"
+          - name: installing httpd at Redhat
+            dnf:
+                name: httpd
+                state: latest
+            when: ansible_os_family == "RedHat"
+            register: httpd_install              
+          - name: installing apache2 at Debian
+            apt:
+                name: apache2
+                state: present
+            when: ansible_os_family == "Debian"
+            register: apache2_install
+          - name: Starting httpd service if changed is true
+            service:
+                    name: httpd
+                    state: started
+                    enabled: yes
+#           loop: "{{httpd_install.results}}"
+#           when: item.changed == true
+            when:
+                  - ansible_os_family == "RedHat"
+                  - httpd_install.changed is defined
+                  - httpd_install.changed
+              
+          - name: Starting apache service if changed is true
+            service:
+                    name: apache2
+                    state: started
+                    enabled: yes
+#           loop: "{{apache2_install.results}}"
+#           when: item.changed == true
+            when:
+                  - ansible_os_family == "Debian"
+                  - apache2_install.changed is defined
+                  - apache2_install.changed
