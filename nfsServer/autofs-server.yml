@@ -26,7 +26,7 @@
            - name: creating linein file
              lineinfile:
                    path: /etc/auto.misc
-                   line: /data  -rw,intr,soft 172.31.1.147:/nfs_share
+                   line: /data  -rw,intr,soft "{{nfs_server_ip}}":/nfs_share
            - name: restarting service
              service: 
                     name: autofs

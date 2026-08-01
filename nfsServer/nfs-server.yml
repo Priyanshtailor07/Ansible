@@ -28,7 +28,7 @@
            - name: creating linein file
              lineinfile: 
                    path: /etc/exports.d/abc.exports
-                   line: /nfs_share   172.31.10.69(rw,sync)
+                   line: /nfs_share   "{{nfs_client_ip}}"(rw,sync)
                    create: yes
            - name: exportfs command
              command: 
