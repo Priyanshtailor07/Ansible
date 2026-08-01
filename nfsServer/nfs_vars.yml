@@ -1,5 +1,0 @@
-pkg: nfs-utils
-service: nfs-server.service
-port: 2049/tcp
-nfs_client_ip: 172.31.10.69
-nfs_server_ip: 172.31.1.147

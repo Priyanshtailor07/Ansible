@@ -1,3 +1,4 @@
 stop_nodes.yml
 
 *.swp
+nfsServer/nfs_vars.yml
