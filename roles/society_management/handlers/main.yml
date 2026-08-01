@@ -1,2 +1,12 @@
 ---
 # handlers file for society_management
+  - name: reload nginx
+    service:  
+       name: nginx
+       state: reloaded
+
+  - name: restart httpd
+    service:
+        name: httpd
+        state: restarted
+        enabled: yes

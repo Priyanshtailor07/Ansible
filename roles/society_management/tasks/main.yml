@@ -1,2 +1,25 @@
 ---
 # tasks file for society_management
+# Master task file — imports each part in deployment order.
+# import_tasks is used (not include_tasks) since the task list is static
+# and known ahead of time — this lets ansible-playbook --list-tasks show
+# every task from every part upfront.
+  - name: Part A - Base server preparation
+    import_tasks: part_a_installation.yml
+    tags: part_a
+  - name: Part B - Backend deployment
+    import_tasks: part_b_backend.yml
+    tags: part_b
+  - name: Part C - Frontend build
+    import_tasks: part_c_frontend.yml
+    tags: part_c
+  - name: Part D - Nginx reverse proxy
+    import_tasks: part_d_nginx.yml
+    tags: part_d
+  - name: Part E - Firewalld and SELinux for proxy layer
+    import_tasks: part_e_firewall_selinux.yml
+    tags: part_e
+  - name: Part F - SSL with Let's Encrypt
+    import_tasks: part_f_ssl.yml
+    tags: part_f
+

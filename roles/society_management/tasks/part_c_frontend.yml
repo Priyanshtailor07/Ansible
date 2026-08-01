@@ -1,0 +1,44 @@
+---
+# Part C — Frontend Build
+# Covers: env config, known-issue fixes (hardcoded Socket.io URL,
+# case-sensitive import), npm install + build
+
+  - name: Configure frontend .env.production
+    template:
+          src: frontend.env.production.j2
+          dest: "{{ app_dir }}/client/.env.production"
+  - name: Fixing issue
+    block:
+          - name: Fix hardcoded Socket.io URL in App.jsx
+            replace: 
+                path: "{{ app_dir }}/client/src/App.jsx"
+                regexp: "io\\('http://localhost:3000'\\)"
+                replace: "io(import.meta.env.VITE_API_URL_ROOT)"
+          - name: Socket.io URL in Visitors.jsx
+            replace:
+                path: "{{ app_dir }}/client/src/pages/Visitors.jsx"
+                regexp: "io\\('http://localhost:3000'\\)"
+                replace: "io(import.meta.env.VITE_API_URL_ROOT)"
+          - name: case-sensitive import (authSlice.js vs AuthSlice)
+            shell: >
+                 grep -rl "redux/slice/AuthSlice" {{ app_dir }}/client/src
+                 | xargs -r sed -i 's/redux\/slice\/AuthSlice/redux\/slice\/authSlice/g'
+            register: case_fix_result
+            changed_when: "case_fix_result.stdout != ''"
+  - name: Install frontend npm dependencies
+    command: npm install
+    args:
+       chdir: "{{ app_dir }}/client"
+  - name: Build frontend
+    command: npm run build
+    args:
+     chdir: "{{ app_dir }}/client"
+    register: frontend_build_result
+  - name: Confirm dist folder created
+    stat:
+        path: "{{ app_dir }}/client/dist/index.html"
+    register: dist_check
+  - name: Show build confirmation
+    debug:
+      msg: "Frontend build successful, index.html present."
+    when: dist_check.stat.exists  

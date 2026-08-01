@@ -1,0 +1,19 @@
+---
+# Part E — Firewalld & SELinux for the Proxy Layer
+# Covers: opening http/https, known-issue fix (502 - SELinux network boolean)
+  - name:  Open HTTP service in firewalld
+    firewalld:
+         service: "{{ item }}"
+         permanent: true
+         state: enabled
+         immediate: true
+    loop:
+           - http
+           - https
+# Known Issue: 502 Bad Gateway — SELinux blocks outbound proxy connection
+  - name: Allow Nginx outbound connection to backend (SELinux boolean
+    seboolean:
+        name: httpd_can_network_connect
+        state: yes
+        persistent: yes
+

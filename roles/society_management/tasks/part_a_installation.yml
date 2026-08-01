@@ -2,7 +2,7 @@
 # Part A — Base Server Preparation 
 # Covers: system update, base packages, Node.js 20.x, MongoDB 7.0 
  - name: Update system and install base tools
-   block:
+   block: 
           - name: update all packages
             dnf:
                 name: "*"
@@ -16,12 +16,12 @@
                     - wget
                     - firewalld
                 state: present
-           - name: Enable and start firewalld
-             service:
+          - name: Enable and start firewalld
+            service:
                 name: firewalld
                 state: started
                 enabled: yes
-   resuce:
+   rescue:
            - name: Base prep failed
              debug:
                 msg: "Base server preparation failed. Check dnf/repo connectivity"
@@ -33,19 +33,20 @@
    get_url:
         url: "{{node_repo_setup_url}}"   
         dest: /tmp/nodesource_setup.sh
-        mode: '0755'
+        mode: "0755"
  - name: Run NodeSource setup script
-   commands: bash /tmp/nodesource_setup.sh
+   command: bash /tmp/nodesource_setup.sh
+   register: node_setup_result
    changed_when: "'Repository configured' in node_setup_result.stdout or node_setup_result.rc == 0"
-     A
+     
  - name: Install node.js
    dnf:
       name: nodejs
       state: present
-        A
+   
  - name: Confirm Node.js version
    command: node -v
-   regiester: node_version
+   register: node_version
    changed_when: false
  - name: Node.js version
    debug:
@@ -53,22 +54,22 @@
  - name: Add MongoDB repo file
    template:
      src: mongodb.repo.j2
-     dest: /etc/yum.repos.d/mongodb-org-7.0.repo
-- name: Install MongoDB
-  dnf:
+     dest: /etc/yum.repos.d/mongodb-org-8.0.repo
+ - name: Install MongoDB
+   dnf:
       name: mongodb-org
       state: present
-        A
-- name: Enable and start MongoDB
-  service:
+        
+ - name: Enable and start MongoDB
+   service:
     name: mongod
     state: started
     enabled: yes
-- name: Check MongoDB service status
-  command: systemctl is-active mongod
-  register: mongo_status
-  changed_when: false
-- name: Show MongoDB status
-  debug:
-  msg: "MongoDB status: {{ mongo_status.stdout }}"
-  when: mongo_status.stdout == "active 
+ - name: Check MongoDB service status
+   command: systemctl is-active mongod
+   register: mongo_status
+   changed_when: false
+ - name: Show MongoDB status
+   debug:
+     msg: "MongoDB status: {{ mongo_status.stdout }}"
+   when: mongo_status.stdout == "active"

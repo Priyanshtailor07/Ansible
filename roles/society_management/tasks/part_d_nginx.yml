@@ -1,0 +1,47 @@
+---
+# Part D — Nginx Reverse Proxy
+# Covers: install, server block, known-issue fix (403 - permissions + SELinux context)
+  - name: Install Nginx
+    dnf: 
+        name: nginx
+        state: present
+  - name:  Enable and start Nginx
+    service: 
+          name: nginx
+          state: started
+          enabled: yes
+
+  - name: Deploy Nginx server block
+    template: 
+          src: society.conf.j2
+          dest: /etc/nginx/conf.d/society.conf
+    notify: reload nginx
+# Nginx Error fixing block 
+  - name: Fixing nginx error
+    block:
+            - name: Fix ownership of dist folde
+              file:
+                  path: "{{ app_dir }}/client/dist"
+                  owner: nginx
+                  group: nginx
+                  recurse: yes
+            - name: Fix directory permissions
+              file:
+                  path: "{{ item }}"
+                  mode: '0755'
+              loop:
+                    - /var/www
+                    - "{{ app_dir }}"
+                    - "{{ app_dir }}/client"
+                    - "{{ app_dir }}/client/dist"
+
+            - name: Set SELinux context for dist folder
+              sefcontext:
+                target: "{{ app_dir }}/client/dist(/.*)?"
+                setype: httpd_sys_content_t
+                state: present
+              register: sefcontext_result
+
+            - name: Apply SELinux context (restorecon)
+              command: restorecon -Rv "{{ app_dir }}/client/dist"
+              when: sefcontext_result.changed

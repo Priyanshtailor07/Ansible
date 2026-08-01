@@ -1,3 +1,0 @@
-{% for host in groups['dev'] %}
-{{ hostvars[host]['ansible_facts']['ansible_hostname'] }}
-{% endfor %}

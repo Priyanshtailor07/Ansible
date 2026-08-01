@@ -1,0 +1,38 @@
+---
+# Part G — SSL/TLS with Let's Encrypt (Certbot
+  - name: Download EPEL 10 GPG key
+    get_url:
+       url: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-10
+       dest: /tmp/RPM-GPG-KEY-EPEL-10
+       mode: '0644'
+
+  - name: Import EPEL GPG key via rpm --import
+    command: rpm --import /tmp/RPM-GPG-KEY-EPEL-10
+
+  - name: Install EPEL repository
+    dnf:
+        name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+        state: present
+  - name: Install Certbot and Nginx plugin
+    dnf: 
+      name: 
+           - certbot
+           - python3-certbot-nginx
+      state: present
+
+  - name: Check if SSL certificate already exists
+    stat:
+        path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+    register: cert_check
+  - name: Issue SSL certificate with Certbot
+    command: >
+        certbot --nginx -d {{ domain_name }} -d {{ domain_www }} --non-interactive --agree-tos -m {{ smtp_user }} --redirect
+    when: not cert_check.stat.exists
+  - name: Confirm certbot renewal timer is active
+    command: systemctl is-active certbot-renew.timer
+    register: renew_timer_status
+    changed_when: false
+    failed_when: false
+  - name: Show renewal timer status
+    debug:
+      msg: "certbot-renew.timer status: {{ renew_timer_status.stdout }}"
