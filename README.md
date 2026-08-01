@@ -15,27 +15,33 @@ projects:
 ---
 
 ## Repository layout
+
+
+```text
 Ansible/
-├── ansible.cfg # Local config: default inventory, roles_path, become
-├── myhosts # Ad-hoc inventory (node1..node4, groups: rhel/dev/prod/webserver)
-├── site.yml # Entry playbook -> runs the society_management role
-├── wordpress_app.yml # Entry playbook -> runs database + wordpress roles
-├── stop_nodes.yml # Utility: shuts down all hosts in inventory
-├── first_playbook.yml # Practice: create a group + user
+├── ansible.cfg                 # Local configuration (inventory, roles_path, become)
+├── myhosts                     # Inventory for ad-hoc commands
+├── site.yml                    # Main playbook (runs society_management role)
+├── wordpress_app.yml           # Deploys MariaDB + WordPress
+├── stop_nodes.yml              # Shuts down all managed nodes
+├── first_playbook.yml          # Practice playbook (creates group and user)
 │
 ├── inventory/
-│ └── inventory.ini # Inventory used by site.yml ([appserver] group)
+│   └── inventory.ini           # Inventory used by site.yml
 │
-├── facts/ # Custom facts examples (facts.d style)
-├── practice/ # Loops, conditionals, blocks, handlers, imports — practice snippets
-├── Assignment1/ # Lab tasks 1-5 (basic modules)
-├── Assignment2/ # Lab tasks 1-5 (Jinja2 loops/conditions, handlers, block/rescue)
+├── facts/                      # Custom facts (facts.d examples)
 │
-├── webServer/ # Standalone playbook: Apache web server (see its own README)
-├── nfsServer/ # Standalone playbooks: NFS server + Autofs client (see its own README)
+├── practice/                   # Practice playbooks (loops, conditions, handlers, blocks, imports)
 │
-└── roles/ # Reusable Ansible roles (standard ansible-galaxy init layout)
-├── apache/ # Cross-platform Apache/httpd role (RHEL + Debian) — WIP
-├── database/ # MariaDB role — used with wordpress role
-├── wordpress/ # WordPress-on-Apache role — used with database role
-└── society_management/ # MERN stack + Nginx + Let's Encrypt role
+├── Assignment1/                # Basic Ansible module assignments
+├── Assignment2/                # Jinja2, handlers, block/rescue assignments
+│
+├── webServer/                  # Apache web server playbooks
+├── nfsServer/                  # NFS server and Autofs client playbooks
+│
+└── roles/
+    ├── apache/                 # Cross-platform Apache role (RHEL & Debian) - WIP
+    ├── database/               # MariaDB role
+    ├── wordpress/              # WordPress deployment role
+    └── society_management/     # MERN Stack + Nginx + Let's Encrypt role
+```

@@ -1,31 +1,80 @@
-Role Name
-=========
+WordPress Role
+===============
 
-A brief description of the role goes here.
+Downloads and installs **WordPress** on a RHEL-family Apache host: installs
+httpd + php-fpm, fetches and extracts WordPress, templates `wp-config.php`
+and an Apache vhost, sets SELinux context, and (re)starts httpd. Designed to
+run alongside the `database` role, which provisions the MariaDB backend it
+connects to (see `wordpress_app.yml` at the repo root).
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- RHEL/CentOS/Rocky/Alma managed node with SELinux enabled (`sefcontext` /
+  `restorecon` are used)
+- `become: true`
+- `ansible.posix` collection (for `sefcontext`), plus the `httpd`/`php-fpm`
+  packages available in the configured repos
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+| Variable | Where | Purpose |
+|---|---|---|
+| `pkg` | not currently defined — needs adding to `defaults/main.yml` | List of packages to install (`httpd`, `php`, `php-fpm`, `php-mysqlnd`, etc. — the role loops `yum` over `{{ pkg }}`) |
+| `wordpress_url` | not currently defined — needs adding | Download URL for the WordPress tarball (e.g. `https://wordpress.org/latest.tar.gz`) |
+| DB connection vars used in `wp-config.j2` | `vars/main.yml` (**Vault-encrypted**) | DB name/user/password/host to write into `wp-config.php` — should match the values set for the `database` role |
+
+View/edit the encrypted vars:
+
+```bash
+ansible-vault view roles/wordpress/vars/main.yml
+ansible-vault edit roles/wordpress/vars/main.yml
+```
+
+> `pkg` and `wordpress_url` are referenced in `tasks/main.yml` but not yet
+> defined anywhere — add them to `defaults/main.yml` (see example below)
+> before running the role.
+
+Templates
+---------
+
+| Template | Deployed to | Purpose |
+|---|---|---|
+| `wp-config.j2` | `/home/admin/wordpress/wp-config.php` | WordPress DB connection config |
+| `wordpress.j2` | `/etc/httpd/conf.d/wordpress.conf` | Apache VirtualHost serving `/var/www/html/wordpress` |
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Expects a database (MariaDB) to already be reachable — normally provided by
+the `database` role running on a separate node in the same play.
+
+What it does
+------------
+
+1. Installs `{{ pkg }}` (loop), starts/enables `httpd` and `php-fpm`
+2. Creates `/home/admin/wordpress`, downloads WordPress from
+   `{{ wordpress_url }}`, extracts it
+3. Templates `wp-config.php` into the extracted WordPress directory
+4. Copies WordPress into `/var/www/html/wordpress/` owned by `apache:apache`
+5. Sets the SELinux file context (`httpd_sys_rw_content_t`) and runs
+   `restorecon`
+6. Templates the Apache VirtualHost and restarts `httpd`
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```yaml
+- name: Configure WordPress Server
+  hosts: node1
+  become: true
+  roles:
+    - wordpress
+```
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+(This is exactly how it's used in `wordpress_app.yml` at the repo root,
+alongside the `database` role running on `node2`.)
 
 License
 -------
@@ -33,6 +82,6 @@ License
 BSD
 
 Author Information
-------------------
+-------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Learning project — see the main repo [README](../../README.md).

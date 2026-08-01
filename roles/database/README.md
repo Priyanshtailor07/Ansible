@@ -1,31 +1,71 @@
-Role Name
-=========
+Database Role
+=============
 
-A brief description of the role goes here.
+Installs and configures **MariaDB** on a RHEL-family host, then creates an
+application database and user — designed to run alongside the `wordpress`
+role as the DB tier of a two-node WordPress deployment (see
+`wordpress_app.yml` at the repo root).
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- RHEL/CentOS/Rocky/Alma managed node
+- `become: true`
+- The `community.mysql` collection (for the `mysql_db` and `mysql_user`
+  modules) and `python3-PyMySQL` on the target (installed by the role itself
+  via `yum`):
+```bash
+  ansible-galaxy collection install community.mysql
+```
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Defined in `vars/main.yml`, which is **encrypted with Ansible Vault**:
+
+| Variable | Purpose |
+|---|---|
+| `db_name` | Database created for the application (e.g. WordPress) |
+| `db_user` | MySQL user created and granted `ALL` privileges on `db_name.*` |
+| `db_password` | Password for `db_user` |
+| `db_hostname` | Host pattern the user is allowed to connect from (e.g. the WordPress node's IP, or `%`) |
+
+View/edit the encrypted vars with:
+
+```bash
+ansible-vault view roles/database/vars/main.yml
+ansible-vault edit roles/database/vars/main.yml
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None. Expected to run on a **different host** than the `wordpress` role in
+the same play (see `wordpress_app.yml`), so `db_hostname` should generally be
+set to the WordPress node's address rather than `localhost`.
+
+What it does
+------------
+
+1. Installs `mariadb`, `mariadb-server`, `python3-PyMySQL`
+2. Starts the `mariadb` service
+3. Creates `{{ db_name }}` via the local unix socket
+4. Creates `{{ db_user }}` with `ALL` privileges on `{{ db_name }}.*`,
+   restricted to connections from `{{ db_hostname }}`
+5. Restarts `mariadb`
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```yaml
+- name: Configure Database Server
+  hosts: node2
+  become: true
+  roles:
+    - database
+```
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+(This is exactly how it's used in `wordpress_app.yml` at the repo root.)
 
 License
 -------
@@ -33,6 +73,6 @@ License
 BSD
 
 Author Information
-------------------
+-------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Learning project — see the main repo [README](../../README.md).
